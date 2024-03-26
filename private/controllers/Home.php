@@ -9,6 +9,15 @@ class Home extends Controller
 	function index()
 	{
 		// code...
-		$this->view('home');
+		if(!Auth::logged_in())
+		{
+			$this->redirect('login');
+		}
+
+		$user = new User();
+ 
+		$data = $user->findAll();
+
+		$this->view('home',['rows'=>$data]);
 	}
 }
