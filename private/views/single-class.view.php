@@ -46,8 +46,24 @@
 		 				case 'tests':
 		 					// code...
 		 					include(views_path('class-tab-tests'));
-
 		 					break;
+
+		 				case 'test-add':
+		 					// code...
+		 					include(views_path('class-tab-test-add'));
+		 					break;
+
+		 				case 'test-edit':
+		 					// code...
+		 					include(views_path('class-tab-test-edit'));
+		 					break;
+
+		 				case 'test-delete':
+		 					// code...
+		 					include(views_path('class-tab-test-delete'));
+		 					break;
+
+		 					
 		 				case 'lecturer-add':
 		 					// code...
 		 					include(views_path('class-tab-lecturers-add'));
