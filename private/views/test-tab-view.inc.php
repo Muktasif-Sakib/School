@@ -47,7 +47,36 @@
 		    		$type = '?type=objective';
 		    	?>
 		    	<p class="card-text"><b>Answer:</b> <?=esc($question->correct_answer)?></p>
-		    <?php endif;?>
+		    	<?php endif;?>
+
+		    	<?php if($question->question_type == 'multiple'):
+		    		$type = '?type=multiple';
+		    	?>
+
+		    		<div class="card" style="width: 18rem;">
+						  <div class="card-header">
+						    Multiple choice
+						  </div>
+						  <ul class="list-group list-group-flush">
+
+						  	<?php $choices = json_decode($question->choices);?>
+						  	<?php foreach($choices as $letter => $answer):?>
+						    	<li class="list-group-item"><?=$letter?>: <?=$answer?> 
+
+						    	<?php if(trim($letter) == trim($question->correct_answer)):?>
+						    		<i class="fa fa-check float-end"></i>
+						    	<?php endif;?>
+
+						    </li>
+						    <?php endforeach;?>
+
+ 						  </ul>
+						</div>
+						<br>
+		    	<p class="card-text"><b>Answer:</b> <?=esc($question->correct_answer)?></p>
+		    	<?php endif;?>
+
+		    	
 
 		    <p class="card-text float-end">
 

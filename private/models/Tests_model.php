@@ -23,6 +23,7 @@ class Tests_model extends Model
 
     protected $afterSelect = [
         'get_user',
+        'get_class',
     ];
 
 
@@ -79,6 +80,21 @@ class Tests_model extends Model
        
         return $data;
     }
+
+    public function get_class($data)
+    {
+        
+        $class = new Classes_model();
+        foreach ($data as $key => $row) {
+            // code...
+            $result = $class->where('class_id',$row->class_id);
+            $data[$key]->class = is_array($result) ? $result[0] : false;
+        }
+       
+        return $data;
+    }
+
+    
 
     
 
