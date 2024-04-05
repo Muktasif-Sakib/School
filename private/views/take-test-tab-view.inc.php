@@ -1,8 +1,23 @@
-<?php $percentage = $this->get_answer_percentage($questions,$saved_answers)?>
+
+<?php $percentage = get_answer_percentage($row->test_id,Auth::getUser_id())?>
 
 <div class="container-fluid text-center">
 	<div class="text-danger"><?=$percentage?>% Answered</div>
 	<div class="bg-primary" style="width: <?=$percentage?>%;height: 5px;"></div>
+	<?php if($answered_test_row):?>
+		<?php if($answered_test_row->submitted):?>
+			<div class="text-success">This test has been submitted</div>
+		<?php else:?>
+			<div class="text-danger">
+				This test has not yet been submitted<br>
+				<a onclick="submit_test(event)" href="<?=ROOT?>/take_test/<?=$row->test_id?>/?submit=true">
+					<button class="btn btn-danger float-end">Submit Test</button>
+				</a>
+			</div>
+		<?php endif;?>
+
+	<?php endif;?>
+
 </div>
 
 <nav class="navbar">
@@ -19,12 +34,12 @@
 
 <form method="post">
 
-	<?php $num = 0?>
+	<?php $num = $pager->offset;; ?>
 	<?php foreach($questions as $question): $num++?>
 
 	    	<?php  
 
-	    		$myanswer = $this->get_answer($saved_answers,$question->id);
+	    		$myanswer = get_answer($saved_answers,$question->id);
 	    	?>
  
 		<div class="card mb-4 ">
@@ -84,7 +99,25 @@
 		</div>
 	<?php endforeach;?>
 
-	<center><button class="btn btn-primary">Save Your Answers</button></center>
+	<center>
+		<small>Click save answers before moving to another page to save your answers</small><br>
+		<button class="btn btn-primary">Save Answers</button>
+	</center>
 	</form>
 <?php endif;?>
+
+<?php $pager->display()?>
+
+<script>
+	
+	function submit_test(e)
+	{
+
+		if(!confirm("Are you sure you want to submit this test!?")){
+			e.preventDefault();
+			return;
+		}
+	}
+
+</script>
 

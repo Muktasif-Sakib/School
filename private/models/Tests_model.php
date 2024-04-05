@@ -94,9 +94,7 @@ class Tests_model extends Model
         return $data;
     }
 
-    
 
-    
 
  
 }

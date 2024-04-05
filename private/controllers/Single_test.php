@@ -46,7 +46,11 @@ class Single_test extends Controller
 		$results = false;
 		$quest = new Questions_model();
 		$questions = $quest->where('test_id',$id);
-		$total_questions = count($questions);
+		
+		$total_questions = 0;
+		if(is_array($questions)){
+			$total_questions = count($questions);
+		}
 
 		$data['row'] 		= $row;
  		$data['crumbs'] 	= $crumbs;

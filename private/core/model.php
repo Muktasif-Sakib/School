@@ -31,13 +31,13 @@ class Model extends Database
 		return 'id';
 	}
 
-	public function where($column,$value,$orderby = 'desc')
+	public function where($column,$value,$orderby = 'desc',$limit = 10,$offset = 0)
 	{
 
 		$column = addslashes($column);
 		$primary_key = $this->get_primary_key($this->table);
 
-		$query = "select * from $this->table where $column = :value order by $primary_key $orderby";
+		$query = "select * from $this->table where $column = :value order by $primary_key $orderby limit $limit offset $offset";
 		$data = $this->query($query,[
 			'value'=>$value
 		]);
@@ -84,12 +84,12 @@ class Model extends Database
 		return $data;
 	}
 
-	public function findAll($orderby = 'desc')
+	public function findAll($orderby = 'desc',$limit = 100,$offset = 0)
 	{
 
 		$primary_key = $this->get_primary_key($this->table);
 
-		$query = "select * from $this->table order by $primary_key $orderby";
+		$query = "select * from $this->table order by $primary_key $orderby limit $limit offset $offset";
 		$data = $this->query($query);
 
 		//run functions after select
@@ -143,6 +143,7 @@ class Model extends Database
 
 	public function update($id,$data)
 	{
+
 		//remove unwanted columns
 		if(property_exists($this, 'allowedColumns'))
 		{

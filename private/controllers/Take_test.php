@@ -40,11 +40,24 @@ class Take_test extends Controller
 		}
 
 		$page_tab = 'view';
+		$db = new database();
 
 		//if something was posted
 		if(count($_POST) > 0)
 		{
 			//save answers to database
+			$arr1['user_id'] = Auth::getUser_id();
+			$arr1['test_id'] = $id;
+
+			$check = $db->query("select id from answered_tests where user_id = :user_id && test_id = :test_id limit 1",$arr1);
+			
+			if(!$check){
+
+				$arr1['date'] = date("Y-m-d H:i:s");
+
+				$query = "insert into answered_tests (user_id,test_id,date) values (:user_id,:test_id,:date)";
+				$db->query($query,$arr1);
+			}
 
 			foreach ($_POST as $key => $value) {
 				// code...
@@ -83,24 +96,41 @@ class Take_test extends Controller
 				}
 			}
 
-			$this->redirect('take_test/'.$id);
+			$page_number = "&page=1";
+			if(!empty($_GET['page']))
+			{
+				$page_number = "&page=".$_GET['page'];
+			}
+			$this->redirect('take_test/'.$id.$page_number);
 		}
 
-		$limit = 10;
- 		$pager = new Pager($limit);
- 		$offset = $pager->offset;
+		$limit = 3;
+		$pager = new Pager($limit);
+		$offset = $pager->offset;
 
 		$results = false;
 		$quest = new Questions_model();
-		$questions = $quest->where('test_id',$id,'asc');
+		$questions = $quest->where('test_id',$id,'asc',$limit,$offset);
+		$all_questions = $quest->query('select * from test_questions where test_id = :test_id',['test_id'=>$id]);
 		
-		$total_questions = is_array($questions) ? count($questions) : 0;
+		$total_questions = is_array($all_questions) ? count($all_questions) : 0;
 
+		//get answered tests row
+		$arr1 = [];
+		$arr1['user_id'] = Auth::getUser_id();
+		$arr1['test_id'] = $id;
+		$data['answered_test_row'] = $db->query("select * from answered_tests where user_id = :user_id && test_id = :test_id limit 1",$arr1);
+		if(is_array($data['answered_test_row']))
+		{
+			$data['answered_test_row'] = $data['answered_test_row'][0];
+		}
+		
 		$data['row'] 		= $row;
  		$data['crumbs'] 	= $crumbs;
 		$data['page_tab'] 	= $page_tab;
 		$data['questions'] 	= $questions;
 		$data['total_questions'] 	= $total_questions;
+		$data['all_questions'] 	= $all_questions;
 		$data['results'] 	= $results;
 		$data['errors'] 	= $errors;
 		$data['pager'] 		= $pager;
@@ -111,46 +141,5 @@ class Take_test extends Controller
 	}
 
 
-	public function get_answer($saved_answers,$id)
-	{
-
-		if(!empty($saved_answers)){
-
-			foreach ($saved_answers as $row) {
-				// code...
-				if($id == $row->question_id)
-				{
-					return $row->answer;
-				}
-			}
-		}
-
-		return '';
-	}
-
-	public function get_answer_percentage($questions,$saved_answers)
-	{
-
-		$total_answer_count = 0;
-		if(!empty($questions))
-		{
-			foreach ($questions as $quest) {
-				// code...
-				$answer = $this->get_answer($saved_answers,$quest->id);
-				if(trim($answer) != ""){
-					$total_answer_count++;
-				}
-			}
-		}
-
-		if($total_answer_count > 0)
-		{
-			$total_questions = count($questions);
-
-			return ($total_answer_count / $total_questions) * 100;
-		}
-
-		return 0;
-	}
 
 }
