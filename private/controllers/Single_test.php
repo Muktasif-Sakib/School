@@ -25,6 +25,18 @@ class Single_test extends Controller
 			$crumbs[] = [$row->test,''];
 		}
 
+		//disable
+		if(isset($_GET['disable'])){
+
+			if($row->disabled){
+				$disable = 0;
+			}else{
+				$disable = 1;
+			}
+			$query = "update tests set disabled = $disable where id = :id limit 1";
+			$tests->query($query,['id'=>$row->id]);
+		}
+
 		$page_tab = 'view';
 
 		$limit = 10;
@@ -162,7 +174,11 @@ class Single_test extends Controller
 
  		if(count($_POST) > 0){
 
- 			if($quest->validate($_POST))
+ 			if(!$row->editable){
+ 				$errors[] = "Editing for this test question is disabled";
+ 			}
+
+ 			if($quest->validate($_POST) && count($errors) == 0)
  			{
  				
  				//check for files
@@ -203,7 +219,7 @@ class Single_test extends Controller
  			}else
  			{
  				//errors
- 				$errors = $quest->errors;
+ 				$errors = array_merge($errors,$quest->errors);
  			}
  		}
 
@@ -248,7 +264,11 @@ class Single_test extends Controller
  		$quest = new Questions_model();
  		$question = $quest->first('id',$quest_id);
 
- 		if(count($_POST) > 0){
+ 		if(!$row->editable){
+			$errors[] = "This test question can not be deleted";
+		}
+
+ 		if(count($_POST) > 0 && count($errors) == 0){
 
  			if(Auth::access('lecturer'))
  			{

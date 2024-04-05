@@ -17,15 +17,74 @@ class Take_test extends Controller
 
 		$tests = new Tests_model();
 		$row = $tests->first('test_id',$id);
+		
+		$answers = new Answers_model();
+		$query = "select question_id,answer from answers where user_id = :user_id && test_id = :test_id ";
+		$saved_answers = $answers->query($query,[
+			'user_id' => Auth::getUser_id(),
+			'test_id' => $id,
+		]);
 
 		$crumbs[] = ['Dashboard',''];
 		$crumbs[] = ['tests','tests'];
 
 		if($row){
 			$crumbs[] = [$row->test,''];
+
+			if(!$row->disabled){
+
+				$query = "update tests set editable = 0 where id = :id limit 1";
+				$tests->query($query,['id'=>$row->id]);
+			}
+
 		}
 
 		$page_tab = 'view';
+
+		//if something was posted
+		if(count($_POST) > 0)
+		{
+			//save answers to database
+
+			foreach ($_POST as $key => $value) {
+				// code...
+				if(is_numeric($key)){
+
+					//save
+					$arr['user_id'] = Auth::getUser_id();
+			        $arr['question_id'] = $key;
+			        $arr['date'] = date("Y-m-d H:i:s");
+			        $arr['test_id'] = $id;
+			        $arr['answer'] = trim($value);
+					
+					//check if answer already exists
+					$query = "select id from answers where user_id = :user_id && test_id = :test_id && question_id = :question_id limit 1";
+					$check = $answers->query($query,[
+						'user_id' => $arr['user_id'],
+						'test_id' => $arr['test_id'],
+						'question_id' => $arr['question_id'],
+					]);
+
+					if(!$check)
+					{
+						$answers->insert($arr);
+
+					}else
+					{
+						$answer_id = $check[0]->id;
+
+						unset($arr['user_id']);
+				        unset($arr['question_id']);
+				        unset($arr['date']);
+				        unset($arr['test_id']);
+
+						$answers->update($answer_id,$arr);
+					}
+				}
+			}
+
+			$this->redirect('take_test/'.$id);
+		}
 
 		$limit = 10;
  		$pager = new Pager($limit);
@@ -45,236 +104,53 @@ class Take_test extends Controller
 		$data['results'] 	= $results;
 		$data['errors'] 	= $errors;
 		$data['pager'] 		= $pager;
+		$data['saved_answers'] 		= $saved_answers;
+
 
 		$this->view('take-test',$data);
 	}
 
-	public function addquestion($id = '')
+
+	public function get_answer($saved_answers,$id)
 	{
-		// code...
-		$errors = array();
-		if(!Auth::logged_in())
-		{
-			$this->redirect('login');
+
+		if(!empty($saved_answers)){
+
+			foreach ($saved_answers as $row) {
+				// code...
+				if($id == $row->question_id)
+				{
+					return $row->answer;
+				}
+			}
 		}
 
-		$tests = new Tests_model();
-		$row = $tests->first('test_id',$id);
-
-		$crumbs[] = ['Dashboard',''];
-		$crumbs[] = ['tests','tests'];
-
-		if($row){
-			$crumbs[] = [$row->test,''];
-		}
-
-		$page_tab = 'add-question';
-
-		$limit = 10;
- 		$pager = new Pager($limit);
- 		$offset = $pager->offset;
-
- 		$quest = new Questions_model();
- 		if(count($_POST) > 0){
-
- 			if($quest->validate($_POST))
- 			{
- 				
- 				//check for files
- 				if($myimage = upload_image($_FILES))
- 				{
- 					$_POST['image'] = $myimage;
- 				}
-
- 				$_POST['test_id'] = $id;
- 				$_POST['date'] = date("Y-m-d H:i:s");
-
- 				if(isset($_GET['type']) && $_GET['type'] == "multiple"){
- 					$_POST['question_type'] = 'multiple';
- 					//for multiple choice
- 					$num = 0;
- 					$arr = [];
-			        $letters = ['A','B','C','D','F','G','H','I','J'];
-			        foreach ($_POST as $key => $value) {
-			            // code...
-			            if(strstr($key, 'choice')){
-			                
-			                $arr[$letters[$num]] = $value;
-			                $num++;
-			            }
-			        }
-
-			        $_POST['choices'] = json_encode($arr);
- 				}else
- 				if(isset($_GET['type']) && $_GET['type'] == "objective"){
- 					$_POST['question_type'] = 'objective';
- 				}else{
- 					$_POST['question_type'] = 'subjective';
- 				}
-
- 				$quest->insert($_POST);
- 				$this->redirect('single_test/'.$id);
- 			}else
- 			{
- 				//errors
- 				$errors = $quest->errors;
- 			}
- 		}
-
-		$results = false;
-
-		$data['row'] 		= $row;
- 		$data['crumbs'] 	= $crumbs;
-		$data['page_tab'] 	= $page_tab;
-		$data['results'] 	= $results;
-		$data['errors'] 	= $errors;
-		$data['pager'] 		= $pager;
-
-		$this->view('single-test',$data);
+		return '';
 	}
 
-	public function editquestion($id = '',$quest_id = '')
+	public function get_answer_percentage($questions,$saved_answers)
 	{
-		// code...
-		$errors = array();
-		if(!Auth::logged_in())
+
+		$total_answer_count = 0;
+		if(!empty($questions))
 		{
-			$this->redirect('login');
+			foreach ($questions as $quest) {
+				// code...
+				$answer = $this->get_answer($saved_answers,$quest->id);
+				if(trim($answer) != ""){
+					$total_answer_count++;
+				}
+			}
 		}
 
-		$tests = new Tests_model();
-		$row = $tests->first('test_id',$id);
-
-		$crumbs[] = ['Dashboard',''];
-		$crumbs[] = ['tests','tests'];
-
-		if($row){
-			$crumbs[] = [$row->test,''];
-		}
-
-		$page_tab = 'edit-question';
-
-		$limit = 10;
- 		$pager = new Pager($limit);
- 		$offset = $pager->offset;
-
- 		$quest = new Questions_model();
- 		$question = $quest->first('id',$quest_id);
-
- 		if(count($_POST) > 0){
-
- 			if($quest->validate($_POST))
- 			{
- 				
- 				//check for files
- 				if($myimage = upload_image($_FILES))
- 				{
- 					$_POST['image'] = $myimage;
- 					if(file_exists($question->image)){
-	 					unlink($question->image);
-	 				}
- 				}
-
- 				//check the question type
-			  	$type = '';
-			  	if(isset($_GET['type']) && $_GET['type'] == "multiple"){
- 					$_POST['question_type'] = 'multiple';
- 					//for multiple choice
- 					$num = 0;
- 					$arr = [];
-			        $letters = ['A','B','C','D','F','G','H','I','J'];
-			        foreach ($_POST as $key => $value) {
-			            // code...
-			            if(strstr($key, 'choice')){
-			                
-			                $arr[$letters[$num]] = $value;
-			                $num++;
-			            }
-			        }
-
-			        $_POST['choices'] = json_encode($arr);
-			        $type = '?type=multiple';
- 				}else
-		    	if($question->question_type == 'objective'){
-		    		$type = '?type=objective';
-		    	}
-
- 				$quest->update($question->id,$_POST);
- 				$this->redirect('single_test/editquestion/'.$id.'/'.$quest_id.$type);
- 			}else
- 			{
- 				//errors
- 				$errors = $quest->errors;
- 			}
- 		}
-
-		$results = false;
-
-		$data['row'] 		= $row;
- 		$data['crumbs'] 	= $crumbs;
-		$data['page_tab'] 	= $page_tab;
-		$data['results'] 	= $results;
-		$data['errors'] 	= $errors;
-		$data['pager'] 		= $pager;
-		$data['question'] 	= $question;
-
-		$this->view('single-test',$data);
-	}
-
-	public function deletequestion($id = '',$quest_id = '')
-	{
-		// code...
-		$errors = array();
-		if(!Auth::logged_in())
+		if($total_answer_count > 0)
 		{
-			$this->redirect('login');
+			$total_questions = count($questions);
+
+			return ($total_answer_count / $total_questions) * 100;
 		}
 
-		$tests = new Tests_model();
-		$row = $tests->first('test_id',$id);
-
-		$crumbs[] = ['Dashboard',''];
-		$crumbs[] = ['tests','tests'];
-
-		if($row){
-			$crumbs[] = [$row->test,''];
-		}
-
-		$page_tab = 'delete-question';
-
-		$limit = 10;
- 		$pager = new Pager($limit);
- 		$offset = $pager->offset;
-
- 		$quest = new Questions_model();
- 		$question = $quest->first('id',$quest_id);
-
- 		if(count($_POST) > 0){
-
- 			if(Auth::access('lecturer'))
- 			{
-  
- 				$quest->delete($question->id);
- 				if(file_exists($question->image)){
- 					unlink($question->image);
- 				}
- 				$this->redirect('single_test/'.$id);
- 			}
- 		}
-
-		$results = false;
-
-		$data['row'] 		= $row;
- 		$data['crumbs'] 	= $crumbs;
-		$data['page_tab'] 	= $page_tab;
-		$data['results'] 	= $results;
-		$data['errors'] 	= $errors;
-		$data['pager'] 		= $pager;
-		$data['question'] 	= $question;
-
-		$this->view('single-test',$data);
+		return 0;
 	}
-
-	
 
 }

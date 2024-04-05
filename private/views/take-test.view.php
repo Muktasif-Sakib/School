@@ -4,8 +4,8 @@
 	<div class="container-fluid p-4 shadow mx-auto" style="max-width: 1000px;">
 		<?php $this->view('includes/crumbs',['crumbs'=>$crumbs])?>
 
-		<?php if($row):?>
- 
+		<?php if($row && !($row->disabled && Auth::access('student'))):?>
+
 		<div class="row">
 	 	<center><h4><?=esc(ucwords($row->test))?></h4></center>
 	 	<center><h5>From: <?=$row->class->class?></h5></center>
