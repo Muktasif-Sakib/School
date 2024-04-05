@@ -35,9 +35,19 @@ class Single_test extends Controller
 			}
 			$query = "update tests set disabled = $disable where id = :id limit 1";
 			$tests->query($query,['id'=>$row->id]);
+			$this->redirect('single_test/'.$id);
 		}
 
 		$page_tab = 'view';
+		$student_scores = false;
+		if(isset($_GET['tab']) && $_GET['tab'] == "scores")
+		{
+			$page_tab = 'scores';
+
+			$answered_test = new Answered_test();
+			$student_scores = $answered_test->query("select * from answered_tests where test_id = :test_id && submitted = 1 && marked = 1 order by score desc",['test_id'=>$id]); 
+
+		}
 
 		$limit = 10;
  		$pager = new Pager($limit);
@@ -60,6 +70,7 @@ class Single_test extends Controller
 		$data['results'] 	= $results;
 		$data['errors'] 	= $errors;
 		$data['pager'] 		= $pager;
+		$data['student_scores'] 		= $student_scores;
 
 		$this->view('single-test',$data);
 	}

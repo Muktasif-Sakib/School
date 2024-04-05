@@ -32,7 +32,6 @@ class Marked extends Controller
 			$data = $tests->query($query,$arr);
  		}else{
 
- 			$test = new Tests_model();
 
  			$mytable = "class_lecturers";
   		 
@@ -46,7 +45,7 @@ class Marked extends Controller
 	 			$arr['find'] = $find;
 	 		}
 
-			$arr['stud_classes'] = $test->query($query,$arr);
+			$arr['stud_classes'] = $tests->query($query,$arr);
 
 			//read all tests from the selectd classes
 			$data = array();
@@ -65,21 +64,28 @@ class Marked extends Controller
  
  		}
 
- 		//get all submitted tests
+		//get all submitted tests
 		$marked = array();
 		if(count($data) > 0){
-			foreach ($data as $key => $arow) {
+
+			$all_tests = array_column($data, 'test_id');
+			$all_tests_string = "'".implode("','", $all_tests)."'";
+			
 				// code...
-					$query = "select * from answered_tests where test_id = :test_id && submitted = 1 && marked = 1 limit 1";
-					$a = $tests->query($query,['test_id'=>$arow->test_id]);
+					$query = "select * from answered_tests where test_id in ($all_tests_string) && submitted = 1 && marked = 1 order by id desc";
+					$marked = $tests->query($query);
 
-					if(is_array($a)){
-						$test_details = $test->first('test_id',$a[0]->test_id);
-						$a[0]->test_details = $test_details;
+					if(is_array($marked)){
 
-						$marked = array_merge($marked,$a);
+						foreach ($marked as $key => $value) {
+							// code...
+							$test_details = $tests->first('test_id',$marked[$key]->test_id);
+							$marked[$key]->test_details = $test_details;
+
+						}
+
 					} 					
-			}
+			
 		}
 			
 		$crumbs[] = ['Dashboard',''];

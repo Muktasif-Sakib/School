@@ -237,7 +237,7 @@ function get_answer_percentage($test_id,$user_id)
     {
         $total_questions = count($questions);
 
-        return ($total_answer_count / $total_questions) * 100;
+        return round(($total_answer_count / $total_questions) * 100);
     }
 
     return 0;
@@ -273,7 +273,7 @@ function get_mark_percentage($test_id,$user_id)
     {
         $total_questions = count($questions);
 
-        return ($total_answer_count / $total_questions) * 100;
+        return round(($total_answer_count / $total_questions) * 100);
     }
 
     return 0;
@@ -309,7 +309,7 @@ function get_score_percentage($test_id,$user_id)
     {
         $total_questions = count($questions);
 
-        return ($total_answer_count / $total_questions) * 100;
+        return round(($total_answer_count / $total_questions) * 100);
     }
 
     return 0;

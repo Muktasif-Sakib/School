@@ -16,6 +16,12 @@
 						<a href="<?=ROOT?>/single_class/<?=$row->class_id?>?tab=tests">
 							<button class="btn btn-sm btn-primary"><i class="fa fa-chevron-right"></i>View class</button>
 						</a>
+
+						<a href="<?=ROOT?>/single_test/<?=$row->test_id?>?tab=scores">
+							<button class="btn btn-sm btn-primary"><i class="fa fa-chevron-right"></i>Student scores</button>
+						</a>
+
+						
 					</td>
 				</tr>
 
@@ -74,6 +80,11 @@
 		 				case 'delete':
 		 					// code...
 		 					include(views_path('test-tab-delete'));
+		 					break;
+
+		 				case 'scores':
+		 					// code...
+		 					include(views_path('test-tab-scores'));
 		 					break;
 		 				
 		 				default:

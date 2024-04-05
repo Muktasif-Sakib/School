@@ -34,8 +34,6 @@ class Tests extends Controller
 			$data = $tests->query($query,$arr);
  		}else{
 
- 			$test = new Tests_model();
-
  			$disabled = "disabled = 0 &&";
  			$mytable = "class_students";
  			if(Auth::getRank() == "lecturer"){
@@ -43,10 +41,10 @@ class Tests extends Controller
  				$disabled = "";
  			}
  			
-			$query = "select * from $mytable where user_id = :user_id && disabled = 0";
+			$query = "select * from $mytable where user_id = :user_id && disabled = 0 order by id desc";
  			$arr['user_id'] = Auth::getUser_id();
 
-			$arr['stud_classes'] = $test->query($query,$arr);
+			$arr['stud_classes'] = $tests->query($query,$arr);
 
 			$data = array();
 			$arr2 = array();

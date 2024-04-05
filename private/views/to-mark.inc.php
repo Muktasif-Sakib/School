@@ -4,6 +4,7 @@
 	<table class="table table-striped table-hover">
 		<tr><th></th><th>Test Name</th><th>Student</th><th>Date Submitted</th>
 			<th>Answered</th>
+			<th>Marked</th>
 			<th></th>
 		</tr>
 		<?php if(isset($test_rows) && $test_rows):?>
@@ -27,6 +28,10 @@
 			 			$percentage = get_answer_percentage($test_row->test_id,$test_row->user_id);
 			 		?>
  					<?=$percentage?>%
+			 	</td>
+			 	<td>
+			 		<?php $marked_percentage = get_mark_percentage($test_row->test_id,$test_row->user_id)?>
+			 		<?=$marked_percentage?>%
 			 	</td>
 				<td>
 			 		<?php if(can_take_test($test_row->test_id)):?>
