@@ -78,8 +78,13 @@
 						  	<?php foreach($choices as $letter => $answer):?>
 						    	<li class="list-group-item"><?=$letter?>: <?=$answer?> 
 
-						    	<input class="float-end" style="transform: scale(1.5);cursor: pointer;" type="radio" name="<?=$question->id?>" <?=$myanswer == $letter ? ' checked ':''?> value="<?=$letter?>" >
-
+						    	<?php if(!$submitted):?>
+						    		<input class="float-end" style="transform: scale(1.5);cursor: pointer;" type="radio" name="<?=$question->id?>" <?=$myanswer == $letter ? ' checked ':''?> value="<?=$letter?>" >
+						    	<?php else:?>
+							    	<?php if($myanswer == $letter):?>
+							    		<i class="fa fa-check float-end"></i>
+							    	<?php endif;?>
+						    	<?php endif;?>
 						    </li>
 						    <?php endforeach;?>
 
@@ -91,25 +96,32 @@
 
 		    <?php if($question->question_type != 'multiple'):?>
 
-	  			<input type="text" value="<?=$myanswer?>" class="form-control" name="<?=$question->id?>" placeholder="Type your answer here">
- 
+		    	<?php if(!$submitted):?>
+	  				<input type="text" value="<?=$myanswer?>" class="form-control" name="<?=$question->id?>" placeholder="Type your answer here">
+  				<?php else:?>
+  					<div>Answer: <?=$myanswer?></div>
+  				<?php endif;?>
   			<?php endif;?>
 		  </div>
 		 
 		</div>
 	<?php endforeach;?>
 
-	<center>
-		<small>Click save answers before moving to another page to save your answers</small><br>
-		<button class="btn btn-primary">Save Answers</button>
-	</center>
-	</form>
+	<?php if(!$submitted):?>
+		<center>
+			<small>Click save answers before moving to another page to save your answers</small><br>
+			<button class="btn btn-primary">Save Answers</button>
+		</center>
+		</form>
+	<?php endif;?>
 <?php endif;?>
 
 <?php $pager->display()?>
 
 <script>
 	
+	var percent = <?=$percentage?>;
+
 	function submit_test(e)
 	{
 
@@ -117,6 +129,15 @@
 			e.preventDefault();
 			return;
 		}
+
+		if(percent < 100){
+			if(!confirm("You have only answered "+ percent +"% of the test. Are you still sure you want to submit?!")){
+				e.preventDefault();
+				return;
+			}
+		}
+
+		
 	}
 
 </script>

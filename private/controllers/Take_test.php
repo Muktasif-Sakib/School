@@ -115,16 +115,25 @@ class Take_test extends Controller
 		
 		$total_questions = is_array($all_questions) ? count($all_questions) : 0;
 
-		//get answered tests row
-		$arr1 = [];
-		$arr1['user_id'] = Auth::getUser_id();
-		$arr1['test_id'] = $id;
-		$data['answered_test_row'] = $db->query("select * from answered_tests where user_id = :user_id && test_id = :test_id limit 1",$arr1);
-		if(is_array($data['answered_test_row']))
-		{
-			$data['answered_test_row'] = $data['answered_test_row'][0];
+		//if its a test submit
+		if(isset($_GET['submit'])){
+
+			$query = "update answered_tests set submitted = 1,submitted_date = :sub_date where test_id = :test_id && user_id = :user_id limit 1";
+			$tests->query($query,[
+				'test_id'=>$id,
+				'user_id'=>Auth::getUser_id(),
+				'sub_date'=>date("Y-m-d H:i:s"),
+			]);
 		}
-		
+
+		$data['answered_test_row'] 	= $tests->get_answered_test($id,Auth::getUser_id());
+
+		$data['submitted'] = false;
+		if(isset($data['answered_test_row']->submitted) && $data['answered_test_row']->submitted == 1)
+		{
+			$data['submitted'] = true;
+		}
+
 		$data['row'] 		= $row;
  		$data['crumbs'] 	= $crumbs;
 		$data['page_tab'] 	= $page_tab;
