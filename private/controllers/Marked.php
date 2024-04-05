@@ -15,7 +15,6 @@ class Marked extends Controller
 		}
 
 		$tests = new Tests_model();
-
 		$school_id = Auth::getSchool_id();
 
 		if(Auth::access('admin')){

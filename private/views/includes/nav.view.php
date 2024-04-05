@@ -10,12 +10,12 @@
     color: white !important;
   }
 
-  .active{
+  .active-nav{
     background-color: #1c77fd;
     color: white !important;
   }
 </style>
-<nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
+<nav class="main-nav navbar navbar-expand-lg navbar-light bg-light p-2">
   	<a class="navbar-brand" href="<?=ROOT?>">
   		<img src="<?=ROOT?>/assets/logo.png" class="" style="width:50px;">
   		 <?=Auth::getSchool_name()?>
@@ -26,38 +26,38 @@
   <div class="collapse navbar-collapse" id="navbarNavDropdown">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link <?=($this->controller_name() == 'Home') ? ' active ':''?> " href="<?=ROOT?>">DASHBOARD</a>
+        <a class="nav-link <?=($this->controller_name() == 'Home') ? ' active-nav ':''?> " href="<?=ROOT?>">DASHBOARD</a>
       </li>
 
       <?php if(Auth::access('super_admin')):?>
         <li class="nav-item">
-          <a class="nav-link <?=($this->controller_name() == 'Schools') ? ' active ':''?> " href="<?=ROOT?>/schools">SCHOOLS</a>
+          <a class="nav-link <?=($this->controller_name() == 'Schools') ? ' active-nav ':''?> " href="<?=ROOT?>/schools">SCHOOLS</a>
         </li>
       <?php endif;?>
 
       <?php if(Auth::access('admin')):?>
         <li class="nav-item">
-          <a class="nav-link <?=($this->controller_name() == 'Users') ? ' active ':''?> " href="<?=ROOT?>/users">STAFF</a>
+          <a class="nav-link <?=($this->controller_name() == 'Users') ? ' active-nav ':''?> " href="<?=ROOT?>/users">STAFF</a>
         </li>
       <?php endif;?>
 
       <?php if(Auth::access('reception')):?>
         <li class="nav-item">
-          <a class="nav-link <?=($this->controller_name() == 'Students') ? ' active ':''?> " href="<?=ROOT?>/students">STUDENTS</a>
+          <a class="nav-link <?=($this->controller_name() == 'Students') ? ' active-nav ':''?> " href="<?=ROOT?>/students">STUDENTS</a>
         </li>
       <?php endif;?>
       
       <li class="nav-item">
-        <a class="nav-link <?=($this->controller_name() == 'Classes') ? ' active ':''?> " href="<?=ROOT?>/classes">CLASSES</a>
+        <a class="nav-link <?=($this->controller_name() == 'Classes') ? ' active-nav ':''?> " href="<?=ROOT?>/classes">CLASSES</a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link <?=($this->controller_name() == 'Tests') ? ' active ':''?> " href="<?=ROOT?>/tests">TESTS</a>
+        <a class="nav-link <?=($this->controller_name() == 'Tests') ? ' active-nav ':''?> " href="<?=ROOT?>/tests">TESTS</a>
       </li>
 
       <?php if(Auth::access('lecturer')):?>
         <li class="nav-item" style="position: relative;">
-          <a class="nav-link <?=($this->controller_name() == 'To_mark') ? ' active ':''?> " href="<?=ROOT?>/to_mark">TO MARK
+          <a class="nav-link <?=($this->controller_name() == 'To_mark') ? ' active-nav ':''?> " href="<?=ROOT?>/to_mark">TO MARK
             <?php  
               $to_mark_count = (new Tests_model())->get_to_mark_count();
             ?>
@@ -68,7 +68,7 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <?=($this->controller_name() == 'Marked') ? ' active ':''?> " href="<?=ROOT?>/marked">MARKED</a>
+          <a class="nav-link <?=($this->controller_name() == 'Marked') ? ' active-nav ':''?> " href="<?=ROOT?>/marked">MARKED</a>
         </li>
       <?php endif;?>
       
